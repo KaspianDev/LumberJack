@@ -11,10 +11,7 @@ import de.jeff_media.lumberjack.config.ConfigUpdater;
 import de.jeff_media.lumberjack.config.Messages;
 import de.jeff_media.lumberjack.data.PlayerSetting;
 import de.jeff_media.lumberjack.hooks.FarmLimiterListener;
-import de.jeff_media.lumberjack.listeners.BlockBreakListener;
-import de.jeff_media.lumberjack.listeners.BlockPlaceListener;
-import de.jeff_media.lumberjack.listeners.DecayListener;
-import de.jeff_media.lumberjack.listeners.PlayerListener;
+import de.jeff_media.lumberjack.listeners.*;
 import de.jeff_media.lumberjack.utils.TreeUtils;
 import de.jeff_media.updatechecker.UpdateChecker;
 import de.jeff_media.updatechecker.UserAgentBuilder;
@@ -115,12 +112,14 @@ public class LumberJack extends JavaPlugin {
         treeUtils = new TreeUtils(this);
         BlockBreakListener blockBreakListener = new BlockBreakListener(this);
         BlockPlaceListener blockPlaceListener = new BlockPlaceListener(this);
+        BlockChangeListener blockChangeListener = new BlockChangeListener(this);
         DecayListener decayListener = new DecayListener();
         PlayerListener playerListener = new PlayerListener(this);
         CommandLumberjack commandLumberjack = new CommandLumberjack(this);
         Objects.requireNonNull(getCommand("lumberjack")).setExecutor(commandLumberjack);
         getServer().getPluginManager().registerEvents(blockBreakListener, this);
         getServer().getPluginManager().registerEvents(blockPlaceListener, this);
+        getServer().getPluginManager().registerEvents(blockChangeListener, this);
         getServer().getPluginManager().registerEvents(playerListener, this);
         getServer().getPluginManager().registerEvents(decayListener, this);
 

@@ -68,6 +68,10 @@ max-air-in-trunk: 1
 # prevention.
 prevent-torch-exploit-aggressive: false
 
+# If set to true, all falling logs will drop
+# otherwise, only broken block will drop.
+drop-all-logs: false
+
 # when set to true, players with gravity DISABLED will be
 # shown a message on how to enable tree gravity
 # when they break a log for the first time.

@@ -15,13 +15,16 @@ import org.bukkit.block.data.type.Leaves;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Objects;
+
+import static org.bukkit.event.EventPriority.MONITOR;
 
 public class BlockBreakListener implements Listener {
 
@@ -31,7 +34,8 @@ public class BlockBreakListener implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+
+    @EventHandler(ignoreCancelled = true, priority = MONITOR)
     public void onLeavesBreak(BlockBreakEvent event) {
 
         if (!(event.getBlock().getBlockData() instanceof Leaves) && !event.getBlock().getType().name().endsWith("_WART_BLOCK")) {
@@ -49,7 +53,8 @@ public class BlockBreakListener implements Listener {
         plugin.getCustomDropManager().doCustomDrops(event.getBlock().getLocation(), event.getBlock().getType());
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @SuppressWarnings("deprecation")
+    @EventHandler(ignoreCancelled = true, priority = MONITOR)
     public void onBlockBreak(BlockBreakEvent event) {
 
         //System.out.println(1);
@@ -172,21 +177,28 @@ public class BlockBreakListener implements Listener {
 
         }
 
-        // I have really no idea what exactly I did here. There was a problem with
-        // falling Blocks being spawned isntead of logs
-        // that were on the ground, so they broke immediately and dropped themself. I
-        // think I fixed this by the following line
-        // if(logAbove.getRelative(BlockFace.DOWN).getType() == Material.AIR ||
-        // logs.contains(logAbove) ||
-        // logs.contains(logAbove.getRelative(BlockFace.DOWN))) {
+        /*
+         * I have really no idea what exactly I did here. There was a problem with
+         * falling Blocks being spawned isntead of logs
+         * that were on the ground, so they broke immediately and dropped themself. I
+         * think I fixed this by the following line
+         * if(logAbove.getRelative(BlockFace.DOWN).getType() == Material.AIR ||
+         * logs.contains(logAbove) ||
+         * logs.contains(logAbove.getRelative(BlockFace.DOWN))) {
+         */
         for (Block logAbove : logs) {
             if (logAbove.getRelative(BlockFace.DOWN).getType() == Material.AIR || logs.contains(logAbove)
                     || logs.contains(logAbove.getRelative(BlockFace.DOWN))) {
 
                 BlockData blockData = logAbove.getBlockData().clone();
-                logAbove.setType(Material.AIR);
-                FallingBlock fallingBlock = logAbove.getLocation().getWorld()
+                FallingBlock fallingBlock = Objects.requireNonNull(logAbove.getLocation().getWorld())
                         .spawnFallingBlock(logAbove.getLocation().add(plugin.fallingBlockOffset), blockData);
+                if (plugin.getConfig().getBoolean("drop-all-logs")) {
+                    fallingBlock.setMetadata("lumberShouldDrop",
+                            new FixedMetadataValue(plugin, true));
+                } else {
+                    logAbove.setType(Material.AIR);
+                }
                 if (plugin.getConfig().getBoolean("prevent-torch-exploit")) {
                     NBTAPI.addNBT(fallingBlock, NBTKeys.IS_FALLING_LOG, NBTValues.TRUE);
                 }
